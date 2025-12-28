@@ -1,0 +1,5 @@
+flask==3.0.0
+ultralytics==8.0.222
+opencv-python==4.8.1.78
+werkzeug==3.0.1
+numpy==1.26.2

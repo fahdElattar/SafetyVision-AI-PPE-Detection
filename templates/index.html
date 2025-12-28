@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafetyVision AI | PPE Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0b1120; }
+        .card-glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .scan-line { position: absolute; width: 100%; height: 2px; background: rgba(16, 185, 129, 0.3); animation: scan 3s linear infinite; z-index: 40; }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+    </style>
+</head>
+<body class="text-slate-200">
+
+    <nav class="border-b border-slate-800 bg-slate-900/80 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500 p-2 rounded-lg text-slate-900 font-bold italic">SV</div>
+                <h1 class="text-xl font-bold tracking-tighter">SAFETY<span class="text-emerald-400">VISION</span></h1>
+            </div>
+            <div class="flex items-center gap-4 bg-slate-800/40 px-4 py-2 rounded-full border border-slate-700 text-[10px] font-black uppercase tracking-widest">
+                <span id="status-text" class="text-slate-400">Standby</span>
+                <span id="cam-dot" class="h-2 w-2 rounded-full bg-slate-600"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <div class="card-glass p-6 rounded-2xl">
+                    <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Input Controls</h2>
+                    <button id="toggleBtn" onclick="toggleCamera()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-all mb-3 text-sm">USE WEBCAM</button>
+                    <button onclick="runDemo()" class="w-full py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all mb-4 text-sm">RUN DEMO VIDEO</button>
+                    
+                    <div class="relative border-2 border-dashed border-slate-700 rounded-xl p-4 hover:border-emerald-500 transition-all bg-slate-900/30">
+                        <input type="file" id="videoInput" accept="video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="uploadVideo()">
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Upload Personal Video</p>
+                        </div>
+                    </div>
+                    <div id="uploadStatus" class="mt-4 hidden">
+                        <button onclick="stopVideoAnalysis()" class="w-full py-2 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-[10px] font-bold rounded-lg transition-all uppercase">Stop Analysis</button>
+                    </div>
+                </div>
+
+                <div class="card-glass p-6 rounded-2xl">
+                    <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Target PPE</h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></span>
+                            <span class="text-xs font-semibold">Safety Helmet</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></span>
+                            <span class="text-xs font-semibold">High-Visibility Vest</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></span>
+                            <span class="text-xs font-semibold">Safety Gloves</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3">
+                <div class="card-glass p-2 rounded-3xl overflow-hidden relative h-[550px] flex items-center justify-center bg-black/40 shadow-2xl border border-white/5">
+                    <div id="placeholder" class="text-center z-10">
+                        <div class="w-16 h-16 border-2 border-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest">Feed Standby</p>
+                    </div>
+                    <img id="videoStream" src="" class="hidden w-full h-full object-contain rounded-2xl z-20">
+                    <div id="scanner" class="scan-line hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="card-glass p-8 rounded-2xl">
+                <h3 class="text-emerald-400 font-bold text-xs uppercase tracking-[0.2em] mb-4">How to use this app</h3>
+                <div class="space-y-4 text-slate-400 text-sm leading-relaxed">
+                    <p><b class="text-slate-200">1. Webcam:</b> Used for real-time monitoring. Click "Use Webcam" to access your local camera hardware.</p>
+                    <p><b class="text-slate-200">2. Upload:</b> Drag and drop or select site footage. The file is analyzed and then automatically deleted from the server to protect privacy.</p>
+                    <p><b class="text-slate-200">3. Demo:</b> Instant test case. Runs a pre-recorded sequence to demonstrate detection accuracy without setup.</p>
+                </div>
+            </div>
+            <div class="card-glass p-8 rounded-2xl">
+                <h3 class="text-emerald-400 font-bold text-xs uppercase tracking-[0.2em] mb-4">Project Information</h3>
+                <p class="text-sm text-slate-400 mb-4">Designed for industrial safety compliance using state-of-the-art Computer Vision.</p>
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4">
+                    <div><span class="block text-[10px] text-slate-500 uppercase font-bold">Inference Engine</span><span class="text-xs text-slate-200">YOLOv8-Medium</span></div>
+                    <div><span class="block text-[10px] text-slate-500 uppercase font-bold">Framework</span><span class="text-xs text-slate-200">Flask + Tailwind</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // JS remains the same as previous version - but ensure upload resets input
+        function uploadVideo() {
+            const fileInput = document.getElementById('videoInput');
+            const formData = new FormData();
+            formData.append('video', fileInput.files[0]);
+            fetch('/upload_video', { method: 'POST', body: formData })
+            .then(res => res.json()).then(data => {
+                if(data.success) {
+                    document.getElementById('uploadStatus').classList.remove('hidden');
+                    startStream('file');
+                    fileInput.value = ""; 
+                }
+            });
+        }
+        function runDemo() {
+            fetch('/start_demo', { method: 'POST' }).then(() => {
+                document.getElementById('uploadStatus').classList.remove('hidden');
+                startStream('file');
+            });
+        }
+        function toggleCamera() {
+            fetch('/toggle_camera', { method: 'POST' }).then(res => res.json()).then(data => {
+                if (data.status) startStream('webcam');
+                else stopStream();
+            });
+        }
+        function stopVideoAnalysis() {
+            fetch('/stop_video', { method: 'POST' }).then(() => stopStream());
+        }
+        function startStream(type) {
+            const stream = document.getElementById('videoStream');
+            const placeholder = document.getElementById('placeholder');
+            const dot = document.getElementById('cam-dot');
+            const statusText = document.getElementById('status-text');
+            const btn = document.getElementById('toggleBtn');
+            const scanner = document.getElementById('scanner');
+
+            stream.src = `/video_feed/${type}?t=${new Date().getTime()}`;
+            stream.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            scanner.classList.remove('hidden');
+            dot.className = "h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] animate-pulse";
+            statusText.innerText = type === 'webcam' ? "Live Analysis" : "File Analysis";
+            if(type === 'webcam') {
+                btn.innerText = "STOP WEBCAM";
+                btn.classList.replace('bg-emerald-600', 'bg-red-600');
+            }
+        }
+        function stopStream() {
+            const stream = document.getElementById('videoStream');
+            const placeholder = document.getElementById('placeholder');
+            const dot = document.getElementById('cam-dot');
+            const statusText = document.getElementById('status-text');
+            const btn = document.getElementById('toggleBtn');
+            const scanner = document.getElementById('scanner');
+
+            stream.src = "";
+            stream.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            scanner.classList.add('hidden');
+            dot.className = "h-2 w-2 rounded-full bg-slate-600";
+            statusText.innerText = "Standby";
+            btn.innerText = "USE WEBCAM";
+            btn.classList.replace('bg-red-600', 'bg-emerald-600');
+            document.getElementById('uploadStatus').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
