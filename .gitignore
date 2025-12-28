@@ -7,5 +7,5 @@ env/
 __pycache__/
 *.pyc
 
-/model/
-/model/*.pt
+# /model/
+# /model/*.pt
