@@ -30,19 +30,22 @@
 
     <main class="max-w-7xl mx-auto p-6">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
             <div class="lg:col-span-1 space-y-6">
                 <div class="card-glass p-6 rounded-2xl">
                     <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Input Controls</h2>
                     <button id="toggleBtn" onclick="toggleCamera()" class="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-all mb-3 text-sm">USE WEBCAM</button>
-                    <button onclick="runDemo()" class="w-full py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all mb-4 text-sm">RUN DEMO VIDEO</button>
+                    <button onclick="runDemo()" class="w-full py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all mb-3 text-sm">RUN DEMO VIDEO</button>
                     
-                    <div class="relative border-2 border-dashed border-slate-700 rounded-xl p-4 hover:border-emerald-500 transition-all bg-slate-900/30">
+                    <div class="relative border-2 border-dashed border-slate-700 rounded-xl p-4 hover:border-emerald-500 transition-all bg-slate-900/30 mb-3">
                         <input type="file" id="videoInput" accept="video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="uploadVideo()">
-                        <div class="text-center">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Upload Personal Video</p>
-                        </div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase text-center">Analyze Video</p>
                     </div>
+
+                    <div class="relative border-2 border-dashed border-slate-700 rounded-xl p-4 hover:border-blue-500 transition-all bg-slate-900/30">
+                        <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="uploadImage()">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase text-center">Analyze Image</p>
+                    </div>
+
                     <div id="uploadStatus" class="mt-4 hidden">
                         <button onclick="stopVideoAnalysis()" class="w-full py-2 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-[10px] font-bold rounded-lg transition-all uppercase">Stop Analysis</button>
                     </div>
@@ -51,18 +54,9 @@
                 <div class="card-glass p-6 rounded-2xl">
                     <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Target PPE</h2>
                     <ul class="space-y-4">
-                        <li class="flex items-center gap-3">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></span>
-                            <span class="text-xs font-semibold">Safety Helmet</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></span>
-                            <span class="text-xs font-semibold">High-Visibility Vest</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></span>
-                            <span class="text-xs font-semibold">Safety Gloves</span>
-                        </li>
+                        <li class="flex items-center gap-3"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span><span class="text-xs font-semibold">Safety Helmet</span></li>
+                        <li class="flex items-center gap-3"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span><span class="text-xs font-semibold">High-Visibility Vest</span></li>
+                        <li class="flex items-center gap-3"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span><span class="text-xs font-semibold">Safety Gloves</span></li>
                     </ul>
                 </div>
             </div>
@@ -85,24 +79,43 @@
             <div class="card-glass p-8 rounded-2xl">
                 <h3 class="text-emerald-400 font-bold text-xs uppercase tracking-[0.2em] mb-4">How to use this app</h3>
                 <div class="space-y-4 text-slate-400 text-sm leading-relaxed">
-                    <p><b class="text-slate-200">1. Webcam:</b> Used for real-time monitoring. Click "Use Webcam" to access your local camera hardware.</p>
-                    <p><b class="text-slate-200">2. Upload:</b> Drag and drop or select site footage. The file is analyzed and then automatically deleted from the server to protect privacy.</p>
-                    <p><b class="text-slate-200">3. Demo:</b> Instant test case. Runs a pre-recorded sequence to demonstrate detection accuracy without setup.</p>
+                    <p><b class="text-slate-200">1. Webcam:</b> Real-time PPE check using optimized resolution for speed.</p>
+                    <p><b class="text-slate-200">2. Uploads:</b> Both image and video analysis supported. Files are auto-deleted post-analysis.</p>
+                    <p><b class="text-slate-200">3. Speed:</b> The app uses frame downscaling and reduced tensor input (320px) to ensure smooth performance.</p>
                 </div>
             </div>
             <div class="card-glass p-8 rounded-2xl">
                 <h3 class="text-emerald-400 font-bold text-xs uppercase tracking-[0.2em] mb-4">Project Information</h3>
-                <p class="text-sm text-slate-400 mb-4">Designed for industrial safety compliance using state-of-the-art Computer Vision.</p>
+                <p class="text-sm text-slate-400 mb-4">Industrial PPE Compliance monitor using YOLOv8m. Optimized for low-latency CPU environments.</p>
                 <div class="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4">
-                    <div><span class="block text-[10px] text-slate-500 uppercase font-bold">Inference Engine</span><span class="text-xs text-slate-200">YOLOv8-Medium</span></div>
-                    <div><span class="block text-[10px] text-slate-500 uppercase font-bold">Framework</span><span class="text-xs text-slate-200">Flask + Tailwind</span></div>
+                    <div><span class="block text-[10px] text-slate-500 uppercase font-bold">Optimization</span><span class="text-xs text-slate-200">imgsz=320</span></div>
+                    <div><span class="block text-[10px] text-slate-500 uppercase font-bold">Tracking</span><span class="text-xs text-slate-200">Real-time Overlays</span></div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // JS remains the same as previous version - but ensure upload resets input
+        function uploadImage() {
+            const fileInput = document.getElementById('imageInput');
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            document.getElementById('status-text').innerText = "Analyzing Image...";
+            fetch('/upload_image', { method: 'POST', body: formData })
+            .then(res => res.json()).then(data => {
+                if(data.success) {
+                    const stream = document.getElementById('videoStream');
+                    const placeholder = document.getElementById('placeholder');
+                    stream.src = data.result_url;
+                    stream.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    document.getElementById('status-text').innerText = "Image Analysis Ready";
+                    document.getElementById('cam-dot').className = "h-2 w-2 rounded-full bg-blue-500";
+                    fileInput.value = "";
+                }
+            });
+        }
+
         function uploadVideo() {
             const fileInput = document.getElementById('videoInput');
             const formData = new FormData();
@@ -116,21 +129,25 @@
                 }
             });
         }
+
         function runDemo() {
             fetch('/start_demo', { method: 'POST' }).then(() => {
                 document.getElementById('uploadStatus').classList.remove('hidden');
                 startStream('file');
             });
         }
+
         function toggleCamera() {
             fetch('/toggle_camera', { method: 'POST' }).then(res => res.json()).then(data => {
                 if (data.status) startStream('webcam');
                 else stopStream();
             });
         }
+
         function stopVideoAnalysis() {
             fetch('/stop_video', { method: 'POST' }).then(() => stopStream());
         }
+
         function startStream(type) {
             const stream = document.getElementById('videoStream');
             const placeholder = document.getElementById('placeholder');
@@ -150,6 +167,7 @@
                 btn.classList.replace('bg-emerald-600', 'bg-red-600');
             }
         }
+
         function stopStream() {
             const stream = document.getElementById('videoStream');
             const placeholder = document.getElementById('placeholder');

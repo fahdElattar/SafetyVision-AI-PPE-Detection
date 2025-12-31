@@ -9,3 +9,5 @@ __pycache__/
 
 # /model/
 # /model/*.pt
+
+/static/uploads/*
